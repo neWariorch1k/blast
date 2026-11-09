@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.layers.EquipmentLayerRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
@@ -21,12 +22,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.Coerce;
 
-/**
- * Replaces the rendering of the leggings layer with a red texture when the leggings
- * carry Blast Protection (or the wearer is known to have it, see {@link BlastCache}).
- */
 @Mixin(EquipmentLayerRenderer.class)
 public class EquipmentLayerRendererMixin {
 
@@ -38,18 +34,12 @@ public class EquipmentLayerRendererMixin {
     private static final Identifier BLASTRED_NETHERITE =
             Identifier.fromNamespaceAndPath("blastred", "textures/entity/equipment/humanoid_leggings/netherite_red.png");
 
-    /**
-     * Target: EquipmentLayerRenderer#renderLayers(LayerType, ResourceKey, Model, S, ItemStack,
-     * PoseStack, SubmitNodeCollector, int, Identifier, int, int).
-     * {@code layerType} is coerced to Object so the nested enum type does not have to be imported;
-     * it is compared by constant name.
-     */
     @Inject(method = "renderLayers", at = @At("HEAD"), cancellable = true)
-    private void blastred$renderRed(@Coerce Object layerType, ResourceKey<?> assetId, Model<?> model, Object state,
-                                    ItemStack stack, PoseStack poseStack, SubmitNodeCollector collector,
-                                    int lightCoords, Identifier playerTexture, int outlineColor, int order,
+    private void blastred$renderRed(EquipmentClientInfo.LayerType layerType, ResourceKey<?> assetId, Model<?> model,
+                                    Object state, ItemStack stack, PoseStack poseStack,
+                                    SubmitNodeCollector collector, int lightCoords, int outlineColor,
                                     CallbackInfo ci) {
-        if (!(layerType instanceof Enum<?> layer) || !"HUMANOID_LEGGINGS".equals(layer.name())) {
+        if (layerType != EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS) {
             return;
         }
 
@@ -62,7 +52,7 @@ public class EquipmentLayerRendererMixin {
 
         @SuppressWarnings("unchecked")
         Model<Object> typedModel = (Model<Object>) model;
-        collector.order(order).submitModel(
+        collector.order(1).submitModel(
                 typedModel,
                 state,
                 poseStack,
