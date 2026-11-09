@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.game.blastred.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "HumanoidArmorLayerMixin",
+    "EquipmentLayerRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
